@@ -1,17 +1,26 @@
 import { useState, useEffect } from 'react'
-import { getPokedexNumber } from '../utils'
+import { getPokedexNumber, getFullPokedexNumber } from '../utils'
+import TypeCard from './TypeCard'
 
-export function PokeCard(props) {
+export default function PokeCard(props) {
     const { selectedPokemon } = props
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(false)
 
-    useEffect( // useEffect is a way to set 'event listener function' that takes 2 inputs. 1. = callback func to be executed, whenever the event that we're listening for is triggered. 2. = dependency array, when its empty, callback func is called right after the page is fully loaded, or when the dependency array will change its value -> {() => {callBack function}, []}
+    const { name, height, abilities, stats, types, moves, sprites } = data || {} /* This line uses object destructuring in JavaScript to extract specific properties from the data object. It is a concise way to safely access multiple properties from an object
+    without having to repeatedly reference the object itself.
+    { name, height, abilities, stats, types, moves, sprites }: This extracts these properties from data and creates variables with the same names.
+    If a property does not exist in data, its variable will be undefined. */
+
+    // useEffect is a way to set 'event listener function' that takes 2 inputs. 1. = callback func to be executed, whenever the event that we're listening for is triggered. 
+    // 2. = dependency array, when its empty, callback func is called right after the page is fully loaded, or when the dependency array will change its 
+    // value -> {() => {callBack function}, []}
+    useEffect(
         () => {
 
             // if loading => exit logic
             if (loading || !localStorage) return // gard close
-            // check if the selected pokemon is available in the cche
+            // check if the selected pokemon is available in the cache
             // 1. define the cache
             let cache = {}
             if (localStorage.getItem('pokedex')) {
@@ -28,7 +37,7 @@ export function PokeCard(props) {
                 setLoading(true)
                 try {
                     const baseUrl = 'https://pokeapi.co/api/v2/'
-                    const suffix = 'pokedex/' + getPokedexNumber(selectedPokemon)
+                    const suffix = 'pokemon/' + getPokedexNumber(selectedPokemon)
                     const finalUrl = baseUrl + suffix
                     const response = await fetch(finalUrl) // Uses fetch() for an HTTP request. await ensures the function pauses until the response is received.
                     // The returned response object contains: 
@@ -61,10 +70,29 @@ export function PokeCard(props) {
             fetchPokemonData()
 
             // if we fetch from the Api make sure to save the information to the cache for next time
-        }, [selectedPokemon]
-    )
+        }, [selectedPokemon])
+
+    if (loading || !data) {
+        return (
+            <div>
+                <h4>Loading...</h4>
+            </div>
+        )
+    }
 
     return (
-        <div></div>
+        <div className='poke-card'>
+            <div>
+                <h4>#{getFullPokedexNumber(selectedPokemon)}</h4>
+                <h2>{name}</h2>
+            </div>
+            <div className='type-container'>
+                {types.map((typeObj, typeIndex) => {
+                    return (
+                        <TypeCard key={typeIndex} type={typeObj?.type?.name} />
+                    )
+                })}
+            </div>
+        </div>
     )
 }
