@@ -89,10 +89,12 @@ export default function PokeCard(props) {
             <div className='type-container'>
                 {types.map((typeObj, typeIndex) => {
                     return (
-                        <TypeCard key={typeIndex} type={typeObj?.type?.name} />
+                        <TypeCard key={typeIndex} type={typeObj?.type?.name} /> // ?. is chaining operator, it checks if typeObj and typeObj.type are 
+                        // defined before accessing typeObj.type.name. If either is undefined or null, it returns undefined instead of throwing an error.
                     )
                 })}
             </div>
+            <img className='default-img' src={'/pokemon/' + getFullPokedexNumber(selectedPokemon) + '.png'} alt={`${name}-large-img`} />
         </div>
     )
 }
